@@ -1,1 +1,4 @@
 .env
+./ai-env
+./ai-env/*
+ai-env/
