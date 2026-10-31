@@ -5,3 +5,4 @@
 3. All user inputs must be validated before DB queries
 4. Auth tokens must use JWT with expiry
 5. All payment operations must be idempotent
+6. All order id should be masked in return statement
