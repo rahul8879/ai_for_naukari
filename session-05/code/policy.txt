@@ -1,0 +1,44 @@
+PERSONAL LOAN POLICY — BAJAJ FINANCE
+Eligibility: Age 21-60 years. Minimum income Rs 25,000 per month.
+CIBIL score 700 and above for standard approval.
+FOIR maximum 50 percent of monthly income.
+
+Interest Rates:
+CIBIL 750+: 11 to 13 percent per annum
+CIBIL 700-749: 13 to 16 percent per annum
+CIBIL below 650: Not eligible
+
+EMI bounce charge: Rs 1000 plus GST per bounce.
+Late payment penalty: 2 percent per month on overdue amount.
+
+GRIEVANCE REDRESSAL POLICY — BAJAJ FINANCE
+
+Level 1: Helpdesk 1800-103-3535, 8AM to 8PM Mon-Sat. Resolution: 3 working days.
+Level 2: Nodal officer email. Resolution: 7 working days.
+Level 3: RBI Banking Ombudsman after 30 days unresolved.
+
+NOC issuance: 7 working days after full loan closure.
+Loan statement: Available instantly on portal.
+Interest certificate: 2 working days from branch.
+
+GOLD LOAN POLICY — BAJAJ FINANCE
+
+Gold purity accepted: 18 karat to 24 karat.
+Maximum LTV: 75 percent of market value (RBI mandated).
+Tenure: 3 months to 24 months.
+
+Foreclosure Policy:
+Within 3 months: 2 percent foreclosure charge
+3 to 6 months: 2 percent charge
+6 to 12 months: 1 percent charge
+After 12 months: No foreclosure charge
+
+Disbursal: Same day within 30 minutes of appraisal.
+# Add more things about Home loan
+To take the home loan below is the eligibility criteria
+1. Age: Minimum 21 years and maximum 65 years.
+2. Income: Minimum net monthly income of Rs. 30,000.
+3. Employment: Salaried or self-employed with a stable income source.
+4. Credit Score: Minimum CIBIL score of 750.
+5. Property Documents: Clear title and ownership documents.
+"""
