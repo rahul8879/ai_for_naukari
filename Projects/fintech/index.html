@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BajajBot — Helpdesk AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────── */
+:root {
+  --bg:          #0c0e12;
+  --surface:     #13161c;
+  --surface2:    #1a1e27;
+  --surface3:    #21263300;
+  --border:      rgba(255,255,255,0.07);
+  --border2:     rgba(255,255,255,0.12);
+  --text:        #e8eaf0;
+  --muted:       #6b7280;
+  --muted2:      #4b5563;
+  --accent:      #f97316;
+  --accent2:     #fb923c;
+  --accent-glow: rgba(249,115,22,0.15);
+  --blue:        #3b82f6;
+  --blue-dim:    rgba(59,130,246,0.12);
+  --green:       #22c55e;
+  --green-dim:   rgba(34,197,94,0.1);
+  --red:         #ef4444;
+  --red-dim:     rgba(239,68,68,0.1);
+  --purple:      #a78bfa;
+  --purple-dim:  rgba(167,139,250,0.1);
+  --r:           10px;
+  --r-lg:        16px;
+}
+
+/* ── RESET ───────────────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Geist',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  font-size:14px;
+  line-height:1.6;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────────────────── */
+.topbar{
+  height:56px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  gap:12px;
+  flex-shrink:0;
+  position:relative;
+  z-index:20;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:34px;height:34px;
+  background:var(--accent);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Instrument Serif',serif;
+  font-size:16px;
+  color:#fff;
+  font-weight:400;
+  letter-spacing:-0.5px;
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.brand-text{
+  font-family:'Instrument Serif',serif;
+  font-size:17px;
+  color:var(--text);
+  letter-spacing:-0.2px;
+}
+.brand-sub{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:300;
+  margin-top:-2px;
+}
+.topbar-right{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.status-badge{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  color:var(--green);
+  background:var(--green-dim);
+  border:1px solid rgba(34,197,94,0.2);
+  padding:4px 10px;
+  border-radius:20px;
+  font-weight:500;
+}
+.pulse{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0.4);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(34,197,94,0);}}
+
+.session-chip{
+  font-family:'Geist Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  padding:4px 10px;
+  border-radius:6px;
+  max-width:160px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.layout{
+  display:flex;
+  flex:1;
+  overflow:hidden;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────── */
+.sidebar{
+  width:248px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  flex-shrink:0;
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.sb-section{
+  padding:16px;
+  border-bottom:1px solid var(--border);
+}
+.sb-label{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted2);
+  margin-bottom:10px;
+}
+
+.quick-btn{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:9px 11px;
+  margin-bottom:5px;
+  cursor:pointer;
+  font-family:'Geist',sans-serif;
+  font-size:12.5px;
+  color:var(--muted);
+  transition:all 0.18s;
+  line-height:1.4;
+}
+.quick-btn:hover{
+  background:var(--surface2);
+  border-color:var(--border2);
+  color:var(--text);
+}
+.quick-btn .qi{
+  width:26px;height:26px;
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  flex-shrink:0;
+  background:var(--surface2);
+}
+.quick-btn:hover .qi{background:var(--accent-glow);}
+
+.loan-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 10px;
+  border-radius:var(--r);
+  cursor:pointer;
+  border:1px solid transparent;
+  transition:all 0.18s;
+  margin-bottom:4px;
+}
+.loan-row:hover{background:var(--surface2);border-color:var(--border);}
+.loan-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  flex-shrink:0;
+  margin-top:2px;
+}
+.loan-info{}
+.loan-id{
+  font-family:'Geist Mono',monospace;
+  font-size:10.5px;
+  color:var(--accent);
+  font-weight:500;
+  margin-bottom:1px;
+}
+.loan-name{font-size:12.5px;color:var(--text);font-weight:500;}
+.loan-type{font-size:11px;color:var(--muted);}
+
+.new-chat-btn{
+  margin:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:9px;
+  cursor:pointer;
+  font-family:'Geist',sans-serif;
+  font-size:12.5px;
+  color:var(--muted);
+  transition:all 0.18s;
+  width:calc(100% - 32px);
+}
+.new-chat-btn:hover{background:var(--red-dim);border-color:rgba(239,68,68,0.3);color:var(--red);}
+
+/* ── CHAT ────────────────────────────────────────────────────────── */
+.chat{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:var(--bg);
+  position:relative;
+}
+
+/* subtle grid bg */
+.chat::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+.messages{
+  flex:1;
+  overflow-y:auto;
+  padding:28px 32px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  position:relative;
+  z-index:1;
+}
+.messages::-webkit-scrollbar{width:3px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── WELCOME ─────────────────────────────────────────────────────── */
+.welcome{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  flex:1;
+  padding:48px 24px;
+  text-align:center;
+  min-height:400px;
+}
+.welcome-icon{
+  width:72px;height:72px;
+  background:var(--accent);
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Instrument Serif',serif;
+  font-size:32px;
+  color:#fff;
+  margin-bottom:24px;
+  box-shadow:0 0 40px var(--accent-glow), 0 0 80px rgba(249,115,22,0.08);
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.welcome h2{
+  font-family:'Instrument Serif',serif;
+  font-size:32px;
+  font-weight:400;
+  color:var(--text);
+  margin-bottom:10px;
+  letter-spacing:-0.5px;
+}
+.welcome p{
+  font-size:14px;
+  color:var(--muted);
+  max-width:420px;
+  margin-bottom:28px;
+  line-height:1.7;
+}
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  max-width:520px;
+}
+.chip{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  padding:7px 16px;
+  border-radius:20px;
+  font-size:12.5px;
+  cursor:pointer;
+  color:var(--muted);
+  transition:all 0.18s;
+  font-family:'Geist',sans-serif;
+}
+.chip:hover{
+  background:var(--accent-glow);
+  border-color:rgba(249,115,22,0.4);
+  color:var(--accent2);
+}
+
+/* ── MESSAGES ────────────────────────────────────────────────────── */
+.msg{
+  display:flex;
+  gap:11px;
+  max-width:76%;
+  animation:msgIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes msgIn{
+  from{opacity:0;transform:translateY(10px) scale(0.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.msg.bot{align-self:flex-start;}
+
+.av{
+  width:30px;height:30px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;
+  font-weight:600;
+  flex-shrink:0;
+  margin-top:3px;
+}
+.msg.user .av{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-size:11px;}
+.msg.bot  .av{background:var(--accent);color:#fff;font-size:14px;box-shadow:0 0 12px var(--accent-glow);}
+
+.bubble{
+  padding:12px 16px;
+  border-radius:14px;
+  font-size:13.5px;
+  line-height:1.65;
+  max-width:100%;
+}
+.msg.user .bubble{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  border-radius:14px 4px 14px 14px;
+}
+.msg.bot .bubble{
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:4px 14px 14px 14px;
+}
+
+/* Query type tag */
+.qtype{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  padding:2px 8px;
+  border-radius:4px;
+  margin-bottom:6px;
+  font-family:'Geist Mono',monospace;
+}
+.qtype.policy{background:var(--blue-dim);color:var(--blue);}
+.qtype.tool{background:var(--purple-dim);color:var(--purple);}
+.qtype.general{background:var(--surface2);color:var(--muted);}
+
+.tools-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:8px;
+}
+.tool-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-family:'Geist Mono',monospace;
+  font-size:10px;
+  background:var(--purple-dim);
+  color:var(--purple);
+  border:1px solid rgba(167,139,250,0.2);
+  padding:2px 8px;
+  border-radius:4px;
+}
+
+/* typing */
+.typing-wrap{display:flex;gap:11px;align-self:flex-start;animation:msgIn 0.2s ease;}
+.typing-bubble{
+  display:flex;
+  gap:5px;
+  align-items:center;
+  padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px 14px 14px 14px;
+}
+.typing-bubble span{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--muted);
+  animation:blink 1.2s infinite;
+}
+.typing-bubble span:nth-child(2){animation-delay:.2s;}
+.typing-bubble span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.3;transform:scale(1);}40%{opacity:1;transform:scale(1.2);}}
+
+/* ── INPUT ───────────────────────────────────────────────────────── */
+.input-wrap{
+  padding:16px 24px 20px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  z-index:10;
+}
+.input-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-end;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:4px 6px 4px 16px;
+  transition:border-color 0.2s;
+}
+.input-row:focus-within{border-color:rgba(249,115,22,0.4);}
+
+textarea{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  font-family:'Geist',sans-serif;
+  font-size:13.5px;
+  color:var(--text);
+  resize:none;
+  max-height:120px;
+  padding:10px 0;
+  line-height:1.5;
+}
+textarea::placeholder{color:var(--muted2);}
+
+.send-btn{
+  width:38px;height:38px;
+  background:var(--accent);
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  font-size:15px;
+  transition:all 0.18s;
+  flex-shrink:0;
+  margin-bottom:3px;
+}
+.send-btn:hover{background:var(--accent2);transform:scale(1.05);}
+.send-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.send-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+.input-hint{
+  font-size:11px;
+  color:var(--muted2);
+  text-align:center;
+  margin-top:10px;
+  letter-spacing:.2px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media(max-width:680px){
+  .sidebar{display:none;}
+  .messages{padding:20px 16px;}
+  .msg{max-width:92%;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">B</div>
+    <div>
+      <div class="brand-text">BajajBot</div>
+      <div class="brand-sub">Helpdesk AI </div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-badge"><div class="pulse"></div>Online</div>
+    <div class="session-chip" id="sessionChip">No session</div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="sb-section">
+      <div class="sb-label">Quick Actions</div>
+      <button class="quick-btn" onclick="sendQ('What is the status of my loan BFL2024001?')">
+        <div class="qi">📋</div>Check loan status
+      </button>
+      <button class="quick-btn" onclick="sendQ('Show me the EMI schedule for BFL2024001')">
+        <div class="qi">📅</div>View EMI schedule
+      </button>
+      <button class="quick-btn" onclick="sendQ('If I prepay Rs 50,000 on BFL2024001, what is the penalty?')">
+        <div class="qi">💰</div>Prepayment calculator
+      </button>
+      <button class="quick-btn" onclick="sendQ('Raise a refund request for BFL2024001. Extra EMI of Rs 8450 was deducted.')">
+        <div class="qi">🔄</div>Raise refund request
+      </button>
+      <button class="quick-btn" onclick="sendQ('What are current interest rates for personal loans?')">
+        <div class="qi">📊</div>Current interest rates
+      </button>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Loan Accounts</div>
+      <div class="loan-row" onclick="sendQ('Check status of BFL2024001')">
+        <div class="loan-dot" style="background:#f97316"></div>
+        <div class="loan-info">
+          <div class="loan-id">BFL2024001</div>
+          <div class="loan-name">Rahul Tiwari</div>
+          <div class="loan-type">Personal Loan</div>
+        </div>
+      </div>
+      <div class="loan-row" onclick="sendQ('Check status of BFL2024002')">
+        <div class="loan-dot" style="background:#3b82f6"></div>
+        <div class="loan-info">
+          <div class="loan-id">BFL2024002</div>
+          <div class="loan-name">Priya Mehta</div>
+          <div class="loan-type">Home Loan</div>
+        </div>
+      </div>
+      <div class="loan-row" onclick="sendQ('Check status of BFL2024003')">
+        <div class="loan-dot" style="background:#a78bfa"></div>
+        <div class="loan-info">
+          <div class="loan-id">BFL2024003</div>
+          <div class="loan-name">Amit Joshi</div>
+          <div class="loan-type">Gold Loan</div>
+        </div>
+      </div>
+      <div class="loan-row" onclick="sendQ('Check status of BFL2024004')">
+        <div class="loan-dot" style="background:#22c55e"></div>
+        <div class="loan-info">
+          <div class="loan-id">BFL2024004</div>
+          <div class="loan-name">Sneha Kulkarni</div>
+          <div class="loan-type">Business Loan</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Memory Tests</div>
+      <button class="quick-btn" onclick="sendQ('What was the first thing I asked you?')">
+        <div class="qi">🧠</div>Test memory recall
+      </button>
+      <button class="quick-btn" onclick="sendQ('What is my outstanding balance again?')">
+        <div class="qi">↩️</div>Ask about prior reply
+      </button>
+    </div>
+
+    <button class="new-chat-btn" onclick="newChat()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+      New Chat
+    </button>
+
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🏦</div>
+        <h2>How can I help you?</h2>
+        <p>Ask about your loan status, EMI schedule, prepayment penalties, or raise a refund. I can also answer policy questions from the Bajaj Finance knowledge base.</p>
+        <div class="chips">
+          <span class="chip" onclick="sendQ('What is my EMI for BFL2024001?')">EMI Details</span>
+          <span class="chip" onclick="sendQ('Show EMI schedule for BFL2024001')">Payment Schedule</span>
+          <span class="chip" onclick="sendQ('Prepay Rs 1,00,000 on BFL2024001 — penalty?')">Prepayment Calc</span>
+          <span class="chip" onclick="sendQ('What CIBIL score is needed for personal loan?')">Policy FAQ</span>
+          <span class="chip" onclick="sendQ('Raise refund of Rs 8450 for BFL2024001. Double deduction.')">Raise Refund</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-wrap">
+      <div class="input-row">
+        <textarea
+          id="inp"
+          placeholder="Ask about your loan, policy, or raise a request..."
+          rows="1"
+          onkeydown="onKey(event)"
+          oninput="resize(this)"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="send()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="input-hint">Enter to send · Shift+Enter for new line</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let sessionId = null;
+let busy = false;
+
+// ── helpers ──────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function esc(s){
+  const lines = String(s).split('\n');
+  const out   = [];
+  let i = 0;
+
+  while(i < lines.length){
+    const line = lines[i];
+
+    // ── Markdown table detection ──────────────────────────────────
+    // A table block = pipe line, then separator line (|---|), then more pipe lines
+    if(line.trim().startsWith('|') && i+1 < lines.length && lines[i+1].trim().match(/^\|[-| :]+\|$/)){
+      const headers = line.trim().split('|').filter(c=>c.trim()).map(c=>
+        `<th style="padding:8px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border2);">${c.trim()}</th>`
+      );
+      out.push(`<div style="overflow-x:auto;margin:10px 0;"><table style="width:100%;border-collapse:collapse;font-size:13px;">`);
+      out.push(`<thead><tr>${headers.join('')}</tr></thead><tbody>`);
+      i += 2; // skip header + separator
+
+      while(i < lines.length && lines[i].trim().startsWith('|')){
+        const cells = lines[i].trim().split('|').filter(c=>c.trim()).map(c=>
+          `<td style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text);">${fmt(c.trim())}</td>`
+        );
+        out.push(`<tr style="transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">${cells.join('')}</tr>`);
+        i++;
+      }
+      out.push(`</tbody></table></div>`);
+      continue;
+    }
+
+    // ── Regular line ──────────────────────────────────────────────
+    out.push(fmt(line) + (i < lines.length-1 ? '<br>' : ''));
+    i++;
+  }
+
+  return out.join('');
+}
+
+// Inline formatting only (used inside table cells + regular lines)
+function fmt(s){
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code style="font-family:\'Geist Mono\',monospace;font-size:12px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;">$1</code>');
+}
+
+function scroll(){
+  const m = $('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function resize(el){
+  el.style.height='auto';
+  el.style.height = Math.min(el.scrollHeight,120)+'px';
+}
+
+function hideWelcome(){
+  const w = $('welcome');
+  if(w) w.remove();
+}
+
+// ── add messages ──────────────────────────────────────────────────
+function addUser(text){
+  hideWelcome();
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  d.innerHTML = `
+    <div class="av">U</div>
+    <div class="bubble">${esc(text)}</div>`;
+  $('messages').appendChild(d);
+  scroll();
+}
+
+function addBot(text, queryType='', tools=[]){
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+
+  const qtag = queryType
+    ? `<div class="qtype ${queryType}">${queryType === 'tool' ? '⚙ Tool' : queryType === 'policy' ? '📚 Policy' : '💬 General'}</div>`
+    : '';
+
+  const toolsHtml = tools.length
+    ? `<div class="tools-row">${tools.map(t=>`<span class="tool-tag">⚙ ${t}</span>`).join('')}</div>`
+    : '';
+
+  d.innerHTML = `
+    <div class="av">🏦</div>
+    <div>
+      ${qtag}
+      <div class="bubble">${esc(text)}</div>
+      ${toolsHtml}
+    </div>`;
+  $('messages').appendChild(d);
+  scroll();
+}
+
+function addTyping(){
+  const d = document.createElement('div');
+  d.className = 'typing-wrap';
+  d.id = 'typing';
+  d.innerHTML = `
+    <div class="av" style="background:var(--accent);color:#fff;font-size:14px;box-shadow:0 0 12px var(--accent-glow);margin-top:3px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;">🏦</div>
+    <div class="typing-bubble"><span></span><span></span><span></span></div>`;
+  $('messages').appendChild(d);
+  scroll();
+}
+
+function removeTyping(){
+  const t = $('typing');
+  if(t) t.remove();
+}
+
+// ── send ──────────────────────────────────────────────────────────
+async function send(){
+  const inp = $('inp');
+  const text = inp.value.trim();
+  if(!text || busy) return;
+
+  busy = true;
+  inp.value = '';
+  resize(inp);
+  $('sendBtn').disabled = true;
+
+  addUser(text);
+  addTyping();
+
+  try{
+    const res = await fetch('/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message:text, session_id: sessionId||undefined})
+    });
+    const data = await res.json();
+    removeTyping();
+
+    if(!res.ok){
+      addBot(`Something went wrong — ${data.detail||'please try again.'}`);
+    } else {
+      sessionId = data.session_id;
+      $('sessionChip').textContent = sessionId.substring(0,18)+'...';
+      $('sessionChip').title = sessionId;
+      addBot(data.reply, data.query_type, data.tools_called||[]);
+    }
+  } catch(e){
+    removeTyping();
+    addBot('Cannot reach the server. Make sure uvicorn is running on port 8000.');
+  }
+
+  busy = false;
+  $('sendBtn').disabled = false;
+  inp.focus();
+}
+
+function sendQ(text){
+  $('inp').value = text;
+  send();
+}
+
+function onKey(e){
+  if(e.key==='Enter' && !e.shiftKey){e.preventDefault();send();}
+}
+
+async function newChat(){
+  if(sessionId){
+    try{await fetch(`/session/${sessionId}`,{method:'DELETE'});}catch{}
+  }
+  sessionId = null;
+  $('sessionChip').textContent = 'No session';
+  $('messages').innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🏦</div>
+      <h2>How can I help you?</h2>
+      <p>Ask about your loan status, EMI schedule, prepayment penalties, or raise a refund. I can also answer policy questions from the Bajaj Finance knowledge base.</p>
+      <div class="chips">
+        <span class="chip" onclick="sendQ('What is my EMI for BFL2024001?')">EMI Details</span>
+        <span class="chip" onclick="sendQ('Show EMI schedule for BFL2024001')">Payment Schedule</span>
+        <span class="chip" onclick="sendQ('Prepay Rs 1,00,000 on BFL2024001 — penalty?')">Prepayment Calc</span>
+        <span class="chip" onclick="sendQ('What CIBIL score is needed for personal loan?')">Policy FAQ</span>
+        <span class="chip" onclick="sendQ('Raise refund of Rs 8450 for BFL2024001. Double deduction.')">Raise Refund</span>
+      </div>
+    </div>`;
+}
+
+$('inp').focus();
+</script>
+</body>
+</html>
