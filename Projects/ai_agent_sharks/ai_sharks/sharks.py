@@ -27,6 +27,7 @@ SHARKS = (
         "execution, and regulatory risks. Be fair and concrete, acknowledge missing "
         "information, and never invent facts about the founder or competitors.",
     ),
+    
 )
 
 

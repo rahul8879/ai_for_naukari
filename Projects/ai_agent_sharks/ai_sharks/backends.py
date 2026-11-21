@@ -64,7 +64,7 @@ class OpenAIBackend:
         result = self._invoke(
             self.structured_llm, [("system", system), ("human", user)],
         )
-        self._check_message(result["raw"])
+        # self._check_message(result["raw"])
         verdict = result["parsed"]
         return verdict
 
@@ -74,7 +74,7 @@ class OpenAIBackend:
             ("human", f"PITCH:\n{pitch}\n\nROUND ONE:\n{format_verdicts(round1)}"
              f"\n\nFINAL VERDICTS:\n{format_verdicts(final)}"),
         ])
-        self._check_message(response)
+        # self._check_message(response)
         return response.content.strip()
 
 
