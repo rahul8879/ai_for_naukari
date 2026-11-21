@@ -1,0 +1,14 @@
+FleetShift — AI dispatch for India's trucking fleets.
+
+Problem: 3.5 million mid-size trucking operators in India still assign loads over
+WhatsApp and phone calls. Trucks run 35% empty on return trips, bleeding money.
+
+Solution: FleetShift is a dispatch platform where an AI matches available trucks to
+return loads in real time, cutting empty miles and paperwork. Operators pay per truck
+per month.
+
+Traction: 900 trucks live across Nagpur, Surat and Ludhiana. Revenue Rs 62 lakh/month,
+growing 18% MoM at a 71% gross margin. Empty-return miles down from 35% to 19% for our
+customers. Net revenue retention is 130%. CAC Rs 6,000, payback in under 3 months.
+
+Ask: raising Rs 6 crore for 9% to expand to 8 corridors and build the load-matching engine.
